@@ -1,0 +1,55 @@
+services:
+  dev:
+    build:
+      context: .
+      args:
+        # On Linux/Mac: set via start.sh which exports UID/GID from the host.
+        # On Windows: Docker Desktop has no host UID mapping, defaults (1000/1000) are fine.
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    volumes:
+      # ── Workspace ────────────────────────────────────────────────────────────
+      - .:/workspace
+
+      # ── Go (modules + build cache) ────────────────────────────────────────────
+      - ~/.cache/go-build:/home/dev/.cache/go-build
+      - ~/go/pkg/mod:/home/dev/go/pkg/mod
+
+      # ── Rust / Cargo registry (toolchain stays baked in the image) ───────────
+      - ~/.cargo/registry:/home/dev/.cargo/registry
+      - ~/.cargo/git:/home/dev/.cargo/git
+      - ~/.cargo/config.toml:/home/dev/.cargo/config.toml:ro
+
+      # ── Python pip ────────────────────────────────────────────────────────────
+      - ~/.cache/pip:/home/dev/.cache/pip
+      - ~/.config/pip/pip.conf:/home/dev/.config/pip/pip.conf:ro
+
+      # ── Node / PNPM ───────────────────────────────────────────────────────────
+      - ~/.npm:/home/dev/.npm
+      - ~/.local/share/pnpm/store:/home/dev/.local/share/pnpm/store
+      - ~/.npmrc:/home/dev/.npmrc:ro
+
+      # ── Java (Gradle / Maven — includes settings.xml, toolchains.xml, etc.) ───
+      - ~/.gradle:/home/dev/.gradle
+      - ~/.m2:/home/dev/.m2
+
+      # ── Git ───────────────────────────────────────────────────────────────────
+      - ~/.gitconfig:/home/dev/.gitconfig:ro
+      - ~/.gitignore:/home/dev/.gitignore:ro
+
+      # ── SSH (read-only — needed for private repos / remote access) ────────────
+      - ~/.ssh:/home/dev/.ssh:ro
+
+      # ── GPG (for signed commits) ──────────────────────────────────────────────
+      - ~/.gnupg:/home/dev/.gnupg:ro
+
+      # ── GitHub CLI ────────────────────────────────────────────────────────────
+      - ~/.config/gh:/home/dev/.config/gh
+
+      # ── Claude Code config / auth ─────────────────────────────────────────────
+      - ~/.claude:/home/dev/.claude
+      - ~/.config/claude:/home/dev/.config/claude
+
+    stdin_open: true
+    tty: true
+    working_dir: /workspace
