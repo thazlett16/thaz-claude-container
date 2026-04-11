@@ -17,5 +17,11 @@ RUN npm install -g pnpm
 # ── Claude Code / OpenCode ────────────────────────────────────────────────────
 RUN npm install -g @anthropic-ai/claude-code opencode-ai
 
+# ── Vite+ (unified web toolchain) ─────────────────────────────────────────────
+RUN curl -fsSL https://vite.plus | bash
+
 # ── Workspace ─────────────────────────────────────────────────────────────────
 WORKDIR /workspace
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD [ "node" ]
