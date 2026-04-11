@@ -14,7 +14,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "Building image ${IMAGE_NAME}..."
 echo "SCRIPT_DIR ${SCRIPT_DIR}"
-DOCKER_BUILDKIT=1 docker build -t "${IMAGE_NAME}" "${SCRIPT_DIR}"
+docker build -t "${IMAGE_NAME}" "${SCRIPT_DIR}"
 
 # ── Run ───────────────────────────────────────────────────────────────────────
 DOCKER_ARGS=(
@@ -33,11 +33,6 @@ DOCKER_ARGS=(
 # Mount ~/.claude.json if it exists (stores auth token / global config)
 if [[ -f "${HOME}/.claude.json" ]]; then
   DOCKER_ARGS+=(--volume "${HOME}/.claude.json:/root/.claude.json")
-fi
-
-# Forward ANTHROPIC_API_KEY if set in the host environment
-if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
-  DOCKER_ARGS+=(--env "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}")
 fi
 
 echo "Starting container '${CONTAINER_NAME}' with workspace: ${WORKSPACE_DIR}"
