@@ -1,4 +1,4 @@
-FROM node:lts-slim
+FROM node:lts-trixie-slim
 
 # ── System dependencies ───────────────────────────────────────────────────────
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -46,6 +46,13 @@ RUN curl -fsSL "https://ziglang.org/download/${ZIG_VERSION}/zig-linux-x86_64-${Z
 
 # ── JDK 21 ────────────────────────────────────────────────────────────────────
 ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+
+# ── Maven ──────────────────────────────────────────────────────────────────────
+ENV MAVEN_VERSION=3.9.14
+RUN curl -fsSL "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
+    | tar -C /usr/local -xz \
+    && ln -s /usr/local/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn
+ENV MAVEN_HOME=/usr/local/apache-maven-${MAVEN_VERSION}
 
 # ── PNPM (system-wide, before user is created) ───────────────────────────────
 RUN npm install -g pnpm
