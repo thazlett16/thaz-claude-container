@@ -50,7 +50,6 @@ RUN set -eux; \
     apt-get dist-clean
 
 # ── Claude Code / OpenCode ───────────────────────────────────────────────────
-# Installed as developer so packages land in NVM's global bin (developer-owned)
 RUN set -eux; \
     CLAUDE_INSTALLER=$(mktemp); \
     trap 'rm -f "$CLAUDE_INSTALLER"' EXIT; \
@@ -58,11 +57,8 @@ RUN set -eux; \
     bash "$CLAUDE_INSTALLER"
 
 # ── Symlinks for non-interactive shells ──────────────────────────────────────
-#USER root
-#RUN . "$NVM_DIR/nvm.sh" \
-#    && ln -sf "$(which node)" /usr/local/bin/node \
-#    && ln -sf "$(which npm)" /usr/local/bin/npm \
-#    && ln -sf "$(which npx)" /usr/local/bin/npx \
-#    && ln -sf "$(which claude)" /usr/local/bin/claude
+USER root
+#RUN set -eux; \
+#    ln -sf "$(which claude)" /usr/local/bin/claude
 
 WORKDIR $WORKSPACE

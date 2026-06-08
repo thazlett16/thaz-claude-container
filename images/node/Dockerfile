@@ -37,4 +37,12 @@ RUN . "$NVM_DIR/nvm.sh" \
 
 ENV PATH="/home/developer/.vite-plus/bin:$PATH"
 
+# ── Symlinks for non-interactive shells ──────────────────────────────────────
+#USER root
+#RUN . "$NVM_DIR/nvm.sh" \
+#    && ln -sf "$(which node)" /usr/local/bin/node \
+#    && ln -sf "$(which npm)" /usr/local/bin/npm \
+#    && ln -sf "$(which npx)" /usr/local/bin/npx \
+#    && ln -sf "$(which claude)" /usr/local/bin/claude
+
 WORKDIR /workspace
