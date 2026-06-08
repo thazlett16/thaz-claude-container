@@ -1,19 +1,30 @@
 FROM buildpack-deps:trixie-curl
 
+# ── developer user (UID/GID 1000) ────────────────────────────────────────────
+ARG USER_UID=1000
+ARG USER_GID=1000
+ARG USER_NAME=developer
+
+RUN set -eux; \
+    groupadd --gid $USER_GID $USER_NAME; \
+    useradd --uid $USER_UID --gid $USER_GID --create-home --shell /bin/bash $USER_NAME
+
 # ── System dependencies ──────────────────────────────────────────────────────
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-		file \
+        file \
         git \
+        gnupg \
         imagemagick \
-		openssh-client \
+        less \
+        openssh-client \
         unzip \
         xz-utils \
         ; \
     apt-get dist-clean
 
-# ── Python Scripting dependencies ────────────────────────────────────────────
+# ── Python scripting ─────────────────────────────────────────────────────────
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
@@ -26,26 +37,53 @@ RUN set -eux; \
 # ── GitHub CLI ───────────────────────────────────────────────────────────────
 # https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian
 RUN set -eux; \
-    mkdir -p -m 755 /etc/apt/keyrings; \
-    out=$(mktemp); \
-    wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg; \
-    cat $out; \
-    tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null; \
-    chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg; \
-    mkdir -p -m 755 /etc/apt/sources.list.d; \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"; \
-    tee /etc/apt/sources.list.d/github-cli.list > /dev/null; \
-    cat $out; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         gh \
         ; \
     apt-get dist-clean
+# RUN set -eux; \
+#    mkdir -p -m 755 /etc/apt/keyrings; \
+#    wget -nv -O /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+#        https://cli.github.com/packages/githubcli-archive-keyring.gpg; \
+#    chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg; \
+#    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+#        > /etc/apt/sources.list.d/github-cli.list; \
+#    apt-get update; \
+#    apt-get install -y --no-install-recommends gh; \
+#    apt-get dist-clean
 
-# ── NVM, Node 24, and PNPM ───────────────────────────────────────────────────
+# ── NVM + Node ───────────────────────────────────────────────────────────────
+ARG NVM_VERSION=v0.40.1
+ARG NODE_VERSION=lts
+ARG NPM_VERSION=lts
 
-# ── Vite+ (unified web toolchain) ────────────────────────────────────────────
+USER developer
+
+ENV NVM_DIR=/home/developer/.nvm \
+    NODE_VERSION=24
+
+RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash \
+    && . "$NVM_DIR/nvm.sh" \
+    && nvm install "$NODE_VERSION" \
+    && nvm alias default "$NODE_VERSION" \
+    && nvm use default
 
 # ── Claude Code / OpenCode ───────────────────────────────────────────────────
+# Installed as developer so packages land in NVM's global bin (developer-owned)
+RUN . "$NVM_DIR/nvm.sh" \
+    && npm install -g @anthropic-ai/claude-code opencode-ai
 
-# ── Volumes for tooling and auth (Claude, Git, PNPM Cache etc) ───────────────
+# ── Symlinks for non-interactive shells ──────────────────────────────────────
+USER root
+RUN . "$NVM_DIR/nvm.sh" \
+    && ln -sf "$(which node)" /usr/local/bin/node \
+    && ln -sf "$(which npm)" /usr/local/bin/npm \
+    && ln -sf "$(which npx)" /usr/local/bin/npx \
+    && ln -sf "$(which claude)" /usr/local/bin/claude
+
+# ── Workspace ────────────────────────────────────────────────────────────────
+RUN mkdir -p /workspace && chown developer:developer /workspace
+
+USER developer
+WORKDIR /workspace
