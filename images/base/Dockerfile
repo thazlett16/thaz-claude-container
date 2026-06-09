@@ -5,60 +5,29 @@ ARG USER_UID=1000
 ARG USER_GID=1000
 ARG USER_NAME=developer
 
-RUN set -eux; \
-    groupadd --gid $USER_GID $USER_NAME; \
-    useradd --uid $USER_UID --gid $USER_GID --create-home --shell /bin/bash $USER_NAME
+RUN --mount=type=bind,source=scripts/base,target=/scripts \
+    bash /scripts/create-user.sh "$USER_UID" "$USER_GID" "$USER_NAME"
 
 ENV WORKSPACE=/home/$USER_NAME/workspace
 
-RUN set -eux; \
-    mkdir -p $WORKSPACE; \
-    chown $USER_NAME:$USER_NAME $WORKSPACE
+RUN --mount=type=bind,source=scripts/base,target=/scripts \
+    bash /scripts/create-workspace.sh "$USER_NAME" "$WORKSPACE"
 
 # ── System dependencies ──────────────────────────────────────────────────────
-RUN set -eux; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends \
-        file \
-        git \
-        gnupg \
-        imagemagick \
-        less \
-        openssh-client \
-        unzip \
-        xz-utils \
-        ; \
-    apt-get dist-clean
+RUN --mount=type=bind,source=scripts/base,target=/scripts \
+    bash /scripts/install-system-deps.sh
 
 # ── Python scripting ─────────────────────────────────────────────────────────
-RUN set -eux; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends \
-        python3 \
-        python3-pip \
-        python3-venv \
-        ; \
-    apt-get dist-clean
+RUN --mount=type=bind,source=scripts/python,target=/scripts \
+    bash /scripts/install-python.sh
 
 # ── GitHub CLI ───────────────────────────────────────────────────────────────
-# https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian
-RUN set -eux; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends \
-        gh \
-        ; \
-    apt-get dist-clean
+RUN --mount=type=bind,source=scripts/base,target=/scripts \
+    bash /scripts/install-github-cli.sh
 
 # ── Claude Code / OpenCode ───────────────────────────────────────────────────
-RUN set -eux; \
-    CLAUDE_INSTALLER=$(mktemp); \
-    trap 'rm -f "$CLAUDE_INSTALLER"' EXIT; \
-    curl -fsSL https://claude.ai/install.sh -o "$CLAUDE_INSTALLER"; \
-    bash "$CLAUDE_INSTALLER"
+RUN --mount=type=bind,source=scripts/base,target=/scripts \
+    bash /scripts/install-claude-code.sh
 
-# ── Symlinks for non-interactive shells ──────────────────────────────────────
-USER root
-#RUN set -eux; \
-#    ln -sf "$(which claude)" /usr/local/bin/claude
-
+USER $USER_NAME
 WORKDIR $WORKSPACE
