@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-MAVEN_VERSION="${1:?MAVEN_VERSION argument is required}"
+MAVEN_VERSION=3.9.16
 
 MAVEN_INSTALLER=$(mktemp)
 trap 'rm -f "$MAVEN_INSTALLER"' EXIT
