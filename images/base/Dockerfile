@@ -4,11 +4,10 @@ FROM buildpack-deps:trixie-curl
 ARG USER_UID=1000
 ARG USER_GID=1000
 ARG USER_NAME=developer
+ARG WORKSPACE=/home/$USER_NAME/workspace
 
 RUN --mount=type=bind,source=scripts/base,target=/scripts \
     bash /scripts/create-user.sh "$USER_UID" "$USER_GID" "$USER_NAME"
-
-ENV WORKSPACE=/home/$USER_NAME/workspace
 
 RUN --mount=type=bind,source=scripts/base,target=/scripts \
     bash /scripts/create-workspace.sh "$USER_NAME" "$WORKSPACE"

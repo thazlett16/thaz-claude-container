@@ -6,6 +6,7 @@ REPO_ROOT="$(cd "${CURRENT_IMAGE_ROOT}/../.." && pwd)"
 
 echo "Building thaz-base..."
 docker build \
+    --debug \
     --no-cache \
     -f "$REPO_ROOT/images/base/Dockerfile" \
     -t thaz-base:latest \
