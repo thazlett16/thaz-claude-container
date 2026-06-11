@@ -31,7 +31,7 @@ RUN --mount=type=bind,source=scripts/base,target=/scripts \
     bash /scripts/install-claude-code.sh
 
 # ── JDK 8 (Eclipse Temurin / Adoptium) ───────────────────────────────────────
-ENV JAVA_HOME=/usr/lib/jvm/temurin-8-amd64
+ENV JAVA_HOME=/usr/lib/jvm/temurin-8-jdk-amd64
 
 RUN --mount=type=bind,source=scripts/java,target=/scripts \
     bash /scripts/install-jdk8.sh
