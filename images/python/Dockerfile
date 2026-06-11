@@ -1,17 +1,20 @@
 FROM thaz-base:latest
 
-# Python 3 is already installed in base.
-# This image adds pipx and Poetry for Python project management.
-
 USER root
-RUN set -eux; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends pipx; \
-    apt-get dist-clean
 
+# ── Python ────────────────────────────────────────────────────────────────────
+RUN --mount=type=bind,source=scripts/python,target=/scripts \
+    bash /scripts/install-python.sh
+
+# ── pipx ─────────────────────────────────────────────────────────────────────
+RUN --mount=type=bind,source=scripts/python,target=/scripts \
+    bash /scripts/install-pipx.sh
+
+# ── Poetry ────────────────────────────────────────────────────────────────────
 USER developer
 ENV PATH="/home/developer/.local/bin:$PATH"
 
-RUN pipx install poetry
+RUN --mount=type=bind,source=scripts/python,target=/scripts \
+    bash /scripts/install-poetry.sh
 
 WORKDIR /workspace
