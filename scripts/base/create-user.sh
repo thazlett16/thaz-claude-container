@@ -15,5 +15,4 @@ chown "$user_name:$user_name" "$workspace";
 # https://www.digitalocean.com/community/tutorials/how-to-edit-the-sudoers-file
 usermod -aG sudo "$user_name";
 echo "$user_name ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$user_name;
-#echo "$user_name ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$user_name;
 chmod 0440 /etc/sudoers.d/$user_name
