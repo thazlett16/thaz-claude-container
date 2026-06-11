@@ -1,6 +1,10 @@
 FROM buildpack-deps:trixie-curl
 
-# ── developer user (UID/GID 1000) ────────────────────────────────────────────
+# ── System dependencies ──────────────────────────────────────────────────────
+RUN --mount=type=bind,source=scripts/base,target=/scripts \
+    bash /scripts/install-system-deps.sh
+
+# ── developer user ───────────────────────────────────────────────────────────
 ARG USER_UID=1000
 ARG USER_GID=1000
 ARG USER_NAME=developer
@@ -12,9 +16,7 @@ RUN --mount=type=bind,source=scripts/base,target=/scripts \
 RUN --mount=type=bind,source=scripts/base,target=/scripts \
     bash /scripts/create-workspace.sh "$USER_NAME" "$WORKSPACE"
 
-# ── System dependencies ──────────────────────────────────────────────────────
-RUN --mount=type=bind,source=scripts/base,target=/scripts \
-    bash /scripts/install-system-deps.sh
+USER $USER_NAME
 
 # ── Python scripting ─────────────────────────────────────────────────────────
 RUN --mount=type=bind,source=scripts/python,target=/scripts \
@@ -28,5 +30,4 @@ RUN --mount=type=bind,source=scripts/base,target=/scripts \
 RUN --mount=type=bind,source=scripts/base,target=/scripts \
     bash /scripts/install-claude-code.sh
 
-USER $USER_NAME
 WORKDIR $WORKSPACE

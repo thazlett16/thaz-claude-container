@@ -7,3 +7,9 @@ user_name="$3";
 
 groupadd --gid "$user_gid" "$user_name";
 useradd --uid "$user_uid" --gid "$user_gid" --create-home --shell /bin/bash "$user_name";
+usermod -aG sudo "$user_name";
+
+# https://www.digitalocean.com/community/tutorials/how-to-edit-the-sudoers-file
+echo "$user_name ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$user_name;
+#echo "$user_name ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$user_name;
+chmod 0440 /etc/sudoers.d/$user_name

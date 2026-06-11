@@ -30,17 +30,10 @@ RUN --mount=type=bind,source=scripts/base,target=/scripts \
 RUN --mount=type=bind,source=scripts/base,target=/scripts \
     bash /scripts/install-claude-code.sh
 
-# ── JDK 21 (OpenJDK) ─────────────────────────────────────────────────────────
-ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+# ── Vite-Plus Install ────────────────────────────────────────────────────────
+ARG VITE_PLUS_DIR=/home/$USER_NAME/.vite-plus
 
-RUN --mount=type=bind,source=scripts/java,target=/scripts \
-    bash /scripts/install-jdk21.sh
-
-# ── Maven ─────────────────────────────────────────────────────────────────────
-ENV MAVEN_VERSION=3.9.16
-ENV MAVEN_HOME=/usr/local/apache-maven-${MAVEN_VERSION}
-
-RUN --mount=type=bind,source=scripts/java,target=/scripts \
-    bash /scripts/install-maven3_9.sh
+RUN --mount=type=bind,source=scripts/node,target=/scripts \
+    bash /scripts/install-vite-plus.sh "$VITE_PLUS_DIR"
 
 WORKDIR $WORKSPACE
