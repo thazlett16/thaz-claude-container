@@ -13,6 +13,9 @@ ARG WORKSPACE=/home/$USER_NAME/workspace
 RUN --mount=type=bind,source=scripts/base,target=/scripts \
     bash /scripts/create-user.sh "$USER_UID" "$USER_GID" "$USER_NAME" "$WORKSPACE"
 
+VOLUME ["/home/$USER_NAME/.config/git"]
+VOLUME ["/home/$USER_NAME/.config/gh"]
+
 USER $USER_NAME
 
 # ── Python scripting ─────────────────────────────────────────────────────────

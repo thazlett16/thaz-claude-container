@@ -1,0 +1,19 @@
+services:
+  base:
+    build:
+      context: ../..
+      dockerfile: images/base/Dockerfile
+      args:
+        USER_NAME: "${USER_NAME:-developer}"
+    image: thaz-base:latest
+    stdin_open: true
+    tty: true
+    volumes:
+      - type: bind
+        source: "${HOME}/.config/git"
+        target: "/home/${USER_NAME:-developer}/.config/git"
+        read_only: true
+      - type: bind
+        source: "${HOME}/.config/gh"
+        target: "/home/${USER_NAME:-developer}/.config/gh"
+        read_only: true
